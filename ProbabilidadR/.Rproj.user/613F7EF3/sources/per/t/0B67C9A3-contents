@@ -1,0 +1,169 @@
+---
+title: '2: probabilidad'
+output: html_document
+date: "2022-09-12"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Simulaciones 
+
+Problema
+-----
+
+¿Cuál es la probabilidad de sacar 25 caras en 50 tiradas de una moneda?
+
+```{r}
+# Simulate one trial
+trial = sample(0:1, 50, replace = TRUE)
+# Check if the event has occurred (TRUE) or not (FALSE)
+has_occurred = (sum(trial) == 25)
+
+# A simulation involves repeating the previous setup a looooooot of times
+# We can use a for loop or...
+nb_sims = 50000
+events = replicate(nb_sims, {
+  trial = sample(0:1, 50, replace = TRUE)
+  (sum(trial) == 25)
+})
+# Use Laplace rule: succesful events / total events
+print(sum(events) / nb_sims)
+```
+
+Problema 
+-----
+
+Se extraen tres cartas de una baraja española.
+¿Cuál es la probabilidad de obtener una pareja (dos cartas del mismo valor)?
+
+```{r}
+sim_case = function() {
+  cards = paste(c('H', 'C', "B", "O"), rep(1:10, each = 4))
+  sample(cards, 3)
+}
+
+get_card_number = function(cards) {
+  purrr::map_chr(strsplit(cards, split = " "), 2)
+}
+
+N = 5000
+is_success = replicate(N, {
+  cards = sim_case()
+  numbers = get_card_number(cards) 
+  # Before table, use factor
+  numbers = factor(numbers, levels = as.character(1:10))
+  counts = table(numbers)
+  any(counts == 2)
+})
+
+print(sum(is_success) / N)
+```
+
+
+Problema
+-----
+
+En una urna hay 3 bolas rojas numeradas del 1 al 3 y 3 bolas negras numeradas
+del 1 al 3. Sacamos dos bolas, ¿Probabilidad de sacar dos treses?
+
+```{r}
+sacarbola = function(){
+urna = paste(c("B", "N"), rep(1:3, each = 2))
+sample(urna, 2)
+}
+
+numero_bola = function(urna) {
+  purrr::map_chr(strsplit(urna, split = " "), 2)
+}
+
+N = 500
+simulaciones_urna = replicate(N,{
+  bolas = sacarbola()
+  numero = numero_bola(bolas)
+  numero = factor(numero, levels = as.character(1:2))
+  cuentas = table(numero)
+  any(counts == 3)
+})
+
+print(sum(simulaciones_urna)/N)
+
+
+#total bolas = 6 (3 rojas + 3 negras)
+urna1=c(
+  paste("N",1:3),
+  paste("R",1:3)
+)
+N=50000
+sim=replicate(N,{
+  urnas=c(1:3,1:3)
+  sacada=sample(urnas,2)
+  sum(sacada==3)==2
+  
+})
+sum(sim)/N
+
+
+```
+
+
+
+En una urna hay 3 bolas rojas numeradas del 1 al 3 y 3 bolas negras numeradas
+del 1 al 3. Sacamos dos bolas, ¿Probabilidad de sacar dos treses o una negra y una roja?
+
+```{r}
+
+```
+
+
+Problema
+-----
+
+
+Se reparten 5 cartas de una baraja española (40 cartas con 4 palos distintos).
+¿Cuál es la probabilidad de obtener tres espadas y dos copas?
+
+```{r}
+
+```
+
+## Probabilidades condicionadas y simulaciones
+
+Problema
+-----
+
+Existen dos urnas. Primera hay dos blancas y una negra.
+Segunda hay una blanca y tres negras. Se lanza una moneda, 
+si cara, cogemos de la primera urna. 
+¿Probabilidad de cara si ha salido negra? Usa simulaciones.
+
+
+$$P(C|N) = \frac{P(C,N)}{P(N)}$$
+```{r}
+# dos condiciones de éxito: una asociada al numerador  y otra
+# al denominador
+
+urna_1 = c("B", "B", "N")
+urna_2 = c("B", "N", "N", "N")
+
+N = 100
+sims = replicate(N, {
+moneda = sample(c("C", "X"), 1)
+if(moneda == "C"){
+  bola = sample(urna_1, 1)
+  }else{
+  bola = sample(urna_2, 1)
+  }
+  c((bola == "N") && (moneda == "C"), bola == "N")
+})
+
+print(sum(sims[1, ]) / sum(sims[2, 1]))
+
+
+
+
+```
+
