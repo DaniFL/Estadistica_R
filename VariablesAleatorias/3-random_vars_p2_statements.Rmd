@@ -1,0 +1,282 @@
+---
+title: "Variables aleatorias II"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+----
+
+Un call-center recibe llamadas durante todo el día. El tiempo T (en minutos)
+entre llamadas se modela la siguiente función de densidad.
+\[
+  f(x)=\begin{cases}
+               c \cdot e^{- t/ 4.5}\qquad 0 \leq t < \infty\\
+               0 \qquad \text{en otro caso (e.o.c.)}
+      \end{cases}
+\]
+
+Dibuja la función de densidad.
+
+```{r}
+ # or better: ifelse(t >=0, exp(-t / 4.5), 0) 
+f_unnormalized = function(t) {
+  if(t>=0){
+    exp(-t / 4.5)
+  }
+  else {
+    0
+  }
+}
+
+f_unnormalized = Vectorize(f_unnormalized)
+
+int_result = integrate(f_unnormalized, -Inf, Inf)
+
+# calculate c_value and change the following
+c_value = 1/int_result$value
+
+f_t = function(t) {
+  c_value * f_unnormalized(t)
+}
+
+ts <- seq(0,100, 0.01)
+plot(ts, f_t(ts), type = "l")
+```
+
+Acaba de llegar una llamada. ¿Cuál es la probabilidad de que no se reciba
+ninguna llamada en los próximos 5 minutos?
+
+```{r}
+# Prob
+# P)(T>5)
+a = integrate(f_unnormalized, 5, Inf)
+version1 = a$value * c_value
+# 1 - P(<5)
+b = integrate(f_unnormalized, 0, 5)
+version2 = 1 - (b$value * c_value)
+```
+
+
+Calcula la función de distribución de la VA T y dibújala. Usa la función de distribución para
+calcular la probabilidad de que el tiempo entre dos llamados sea entre 2 y 3
+minutos.
+
+```{r}
+# ??
+F_t <- function(t) {
+  #P(T<= t)
+  int_result2 = integrate(f_t, -Inf, t)
+  int_result2$value
+}
+
+F_t = Vectorize(F_t)
+ts = seq(-1, 10 , by = 0.1)
+plot(ts, F_t(ts), type = "l")
+
+#P(2<T<3)
+F_t(3)-F_t(2)
+```
+
+
+Calcula la media, moda y varianza de T.
+
+```{r}
+# integral t * f(t)
+mu_int_result = integrate(function(t) t * f_t(t), -Inf, Inf)
+mu = mu_int_result$value
+# Varianza [T] = E[T^2] - mu^2
+esperanza_cuadrado = integrate(function(t) t^2 * f_t(t), -Inf, Inf)
+esperanza = esperanza_cuadrado$value
+varianza = esperanza - mu^2
+```
+
+---
+
+La distribución de $X$ e $Y$ viene dada por:
+ \[
+  f(x)=\begin{cases}
+              ce^{(-x^2)}e ^{(-2y^2)} \qquad -\infty < x < \infty, -\infty < y< \infty \\
+              0 \qquad \text{e.o.c}
+      \end{cases}
+\]
+Visualiza la función de densidad. 
+
+```{r 3d-plot}
+# ====> optional
+# library("plot3D")
+# x <- seq(-3, 3, 0.1)
+# y <- seq(-3, 3, 0.1)
+# z <- outer(x, y, function(x, y) exp(-x^2) * exp(-2*y^2))
+# persp3D(
+#   x, y, z, theta = 50, phi = 30, ltheta = 120,
+#   xlab = "x",  ylab = "y", zlab = "f(x,y)",
+#   shade = 0.25,
+#   expand = 3,
+#   facets = FALSE,
+#   scale = FALSE,
+#   colkey = FALSE
+# )
+```
+
+```{r lattice-contour}
+# ====> optional
+# x <- seq(-3, 3, 0.2)
+# y <- seq(-3, 3, 0.1)
+# z <- outer(x, y, function(x, y) exp(-x^2) * exp(-2*y^2))
+# 
+# lattice::levelplot(z, row.values = x, column.values = y, cuts = 50, colorkey=FALSE)
+# lattice::contourplot(z, row.values = x, column.values = y, region = TRUE, colorkey=FALSE)
+```
+
+```{r}
+x <- seq(-3, 3, 0.2)
+y <- seq(-3, 3, 0.1)
+z <- outer(x, y, function(x, y) exp(-x^2) * exp(-2*y^2))
+contour(z, x = x, y = y)
+```
+
+
+Calcula (a) $P(X > 1, Y < 1)$; (b) $P(X < Y)$
+
+```{r}
+source("utils.R")
+# P(X > 1, Y < 1)
+f_xy_unnormalised = function(x, y){
+   exp(-x ^ 2) * exp(-2 * y ^ 2)
+}
+
+integral_1 = integrate2_dydx(f_xy_unnormalised, from_x = -Inf, to_x = Inf, from_y = function(x) -Inf, to_y = function(x) Inf)
+
+int_value = integral_1$value
+c_value = 1 / int_value
+c_value
+
+f_xy = function(x, y){
+  c_value * f_xy_unnormalised(x,y)
+}
+
+int = integrate2_dydx(f_xy, from_x = 1, to_x = Inf, from_y = function(x) -Inf, to_y = function(x) 1)
+int$value
+
+# P(X < Y)
+
+integrate2_dydx(f_xy, from_x = -Inf, to_x = Inf, from_y = function(x) x, to_y = function(x) Inf)
+
+```
+
+----
+
+Dos personas acuerdan encontrarse entre las 12:00 y las 12:30 con la condición
+de que nadie esperará más de 5 minutos por el otro. La probabilidad de que llegada
+para cada persona es uniforme entre las 12:00 y las 12:30. ¿Probabilidad de que se
+encuentren?
+
+```{r}
+# E: tiempo espera (mins)
+# X: hora llegada amigo 1
+# Y: hora llegada amigo 2
+# P(|X-Y| < 5)
+
+# Funcion densidad (Independientes == Marginales)
+
+# f(x,y) = f(x) * f(y)
+# f(x) = c (0 < x < 30)
+# f(y) = c (0 < y < 30)
+
+# 1) Observar región funcion densidad (intervalos-limites) --> dibujar
+# 2) Delimitar región que cumple condición
+
+#
+#                                                                          |0<x<30
+#                                   | f(x) * f(y) == 1/30 * 1/30 == 1/900  |
+# Condiciones // Expresion f(x,y) = |                                      |0<y<30
+#                                   | 0                                     e.o.c
+f_x_y = function(x, y){
+  ifelse(
+    (0 < x) & (x < 30) & (y > 0) & (y < 30), 
+    1/900,
+    0
+  )
+}
+
+int_resultado = integrate2_dydx(f_x_y,
+                from_x = 0, to_x = 30,
+                from_y = function(x) x - 5, to_y = function(x) x + 5
+              )
+int_resultado$value
+
+```
+
+---- 
+
+Supón que un ordenador depende de los componentes A y B, cuyas vidas respectivas
+X e Y se distribuyen conjuntamente con la función de densidad:
+\[
+  f(x, y)=\begin{cases}
+              e^{-y}  \qquad 0 < x < y< \infty \\
+              0 \qquad \text{otherwise}
+      \end{cases}
+\]
+
+Calcula la probabilidad de que B dure al menos tres unidades de tiempo más que A.
+
+```{r}
+f <- function(x, y) {
+  if ((x > 0) & (y > x)) {
+      exp(-y)
+  } else {
+    0
+  }
+}
+f <- Vectorize(f)
+# ??
+```
+
+Calcula la probabilidad de A y B duren ambos más de 2 unidades de tiempo.
+
+```{r}
+# ??
+```
+
+Calcula las funciones de densidad marginales.
+
+```{r}
+# ??
+```
+
+Calcula la función de densidad condicional para X si sabemos que B ha durado
+5 unidades de tiempo.
+
+```{r}
+# ??
+```
+
+Calcula la función de densidad condicional para Y si sabemos que A ha durado
+5 unidades de tiempo. ¿Cuál es la probabilidad de que B dure entre entre 4
+y 7 unidades de tiempo si A ha durado 5 unidades de tiempo?
+
+```{r}
+# ??
+```
+
+¿Cuál es el valor esperado para Y si X=5?
+
+```{r}
+# ??
+```
+
+----
+
+Tiramos dardos a una diana de radio 1 con centro en el origen. Los dardos impactan
+aleatoriamente en el punto $(X, Y)$. Supongamos que $(X, Y)$ se distribuye
+uniformemente en la diana. ¿Cuál es la distancia esperada al origen?
+
+```{r}
+# ??
+```
+

@@ -1,0 +1,357 @@
+---
+title: "3-Variables aleatorias I"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Distribuciones de variables aleatorias discretas
+
+----
+
+Sea la VA X: "nº de caras en n lanzamientos de una moneda
+cuya probabilidad de cara es p". Estudia su distribución para el caso
+$p=1/2$, $n=100$ mediante la función de probabilidad.
+
+```{r}
+p_heads <- function(x, n, p) {
+  choose(n,x) * p^x *(1-p)^(n-x)
+}
+
+x = 0:100
+p = p_heads(x,  100, 0.5)
+plot(x, p, type = 'h', xlab = "x", ylab = "p(X=x)", 
+     main = "Función de probabilidad")
+
+```
+
+--- 
+
+Escribe una función de R para la función de distribución de la VA aleatoria
+X: ''nº de caras en 100 lanzamientos de una moneda cuya probabilidad de cara es 0.5".
+Dibújala y úsala para responder a las siguientes preguntas:
+
+  * $P(40 \leq X \leq 60)$
+  * $P(40 < X < 60)$
+  * $P(40 \leq X < 60)$
+  
+```{r}
+# WARNING: Not properly vectorized!
+F_heads <- function(x, n, p) {
+  sum(p_heads(0:x , n, p))
+}
+# Due to non-vectorization --> FAILS: F_heads(0:2, 3, 0.5)
+# To correct it:
+F_heads <- Vectorize(F_heads)
+
+# P(40 <= X <= 60)
+F_heads(60) - F_x(39)
+
+# P(40 < X < 60)
+F_heads(59) - F_x(40)
+
+# P(40 <= X < 60)
+F_heads(59) - F_x(39)
+ 
+plot(0:x, F_heads(0:x), type = "s", xlab="x", ylab="F(x)", 
+     main = "Función de distribución",
+     ylim=c(0,1)
+)
+```
+
+--- 
+
+Halla la función de probabilidad de X: ''nº de caras en 2 lanzamientos de
+una moneda cuya probabilidad de cara es 0.5'' a partir de la siguiente función
+de distribución:
+
+```{r}
+F_values = c('0' = 0.125, '1' = 0.5, '2' = 0.875, '3' = 1)
+plot(0:3, F_values, type = "s", xlab="x", ylab="F(x)", main = "Función de distribución",
+     ylim=c(0, 1), yaxt="n")
+axis(2, at = seq(0, 1, by = 0.125), las=2)
+```
+  
+  
+# Esperanza varianza y otros estadísticos resumen
+## Medidas de tendencia central
+
+---- 
+
+La mediana y la moda de X (''nº de caras en 100 lanzamientos de una moneda
+sin trucar'') son fáciles de calcular por razonamiento. Realiza esos mismos
+cálculos usando R.
+
+```{r}
+# Moda: máximo de ps 
+xs = 0:100
+ps = p_heads(xs, n = 100, p = 0.5)
+plot(xs, ps, type = "h")
+abline(v=50, col=3)
+max(ps)
+xs[which.max(ps)] #devuelve índice donde ocurre maximo
+
+# Función distribución
+F_heads <- function(x, n=100, p=0.5) {
+  sum(p_heads(0:x , n, p))
+}
+
+F_heads <- Vectorize(F_heads)
+
+plot(xs, F_heads(xs))
+abline(h = 0.5, col = 2)
+
+min(xs[F_heads(xs) >= 0.5])
+
+```
+
+
+---- 
+
+Calcula la esperanza de la variable aleatoria X:''nº de caras en 100 lanzamientos
+de una moneda sin trucar'' usando 1) la definición y 2) simulaciones. ¿Cuadra
+con tu intuición?
+
+```{r}
+p_heads = function(x, n=100, p=0.5){
+  choose(n,x) * p^x * (1-p) ^ (n-x)
+}
+
+# Definición: E[X] = sum x* p(x)
+n = 250
+p = 0.25
+xs <- 0:n
+ps <- p_heads(xs, n, p)
+print(sum(xs*ps))
+
+# n , p 
+one_simulation = function(n, p){
+  experiment = sample(c(0,1), n, replace = TRUE, prob = c(1-p, p))
+  sum(experiment)
+}
+# Simulación
+sims <- replicate(5000, {
+  one_simulation(n, p)
+})
+
+# sum(sims)/length(sims)
+mean(sims)
+
+```
+
+
+---
+
+Un jugador gana 1 euro si al tirar un dado obtiene un 1 o un 3; pierde 2 euros
+si sale un 2, 4, 6; y gana 4 euros si sale un 5. ¿Cuál es la ganancia esperada? 
+¿Jugarías a este juego?
+
+```{r}
+# ???????????
+```
+
+## Medidas de dispersión
+Lanzamos una moneda 100 veces, varianza de la VA "nº de caras". 
+Calcular con la fórmula y con simulaciones
+
+```{r}
+# (cuando sé escribir la fórmula de probabilidad)
+# varianza = E[(X-mu)^2]
+xs = 0:100
+mu = 50
+distances = (xs - mu)^2
+
+varianza = sum(distances * p_heads(xs))
+desviacion_tipica = sqrt(varianza)
+
+plot(xs, p_heads(xs), type = "h")
+abline(v = mu, col = 2)
+# 3 desviaciones tipicas a la izquierda y a la dercha ==> 99.9% datos
+abline(v = mu - 3 * desviacion_tipica, col = 3)
+abline(v = mu + 3 * desviacion_tipica, col = 3)
+
+# desviacion tipica = 5
+# simulaciones: (cuando no se escribir la fórmula de probabilidad)
+
+## Version 1
+
+N = 5000
+simulaciones_moneda = replicate(N, {
+  #Contar numero de caras
+  sum(sample(c(0,1), 100, replace = TRUE))
+})
+media = mean(simulaciones_moneda)
+distancias = (simulaciones_moneda - media)^2
+varianza = mean(distancias)
+varianza_v2 = sqrt(varianza)
+sd(simulaciones_moneda)
+
+## Versión 2 (chat)
+
+# Realizar 10,000 simulaciones de lanzar una moneda 100 veces
+simulaciones_chat <- replicate(10000, sum(sample(0:1, 100, replace = TRUE)))
+
+# Calcular la desviación estándar de las simulaciones
+desviacion_estandar_simulaciones <- sd(simulaciones_chat)
+
+desviacion_estandar_simulaciones
+
+
+```
+
+
+
+
+# Distribuciones conjuntas de variables discretas
+## Distribuciones conjuntas de variables discretas
+
+----
+    
+Se lanza una moneda $n$ veces (prob. de cara es $p$). Considera las VAs X:
+''nº de caras'' e  Y: ''nº de caras iniciales (antes de la primera cruz o del fin
+del experimento)''. Halla la distribución conjunta para cualquier $n$ y $p$ y
+luego particulariza para $n=4$,$p=0.5$.
+
+```{r}
+joint_xy = function(x, y, n, p) {
+  # ??????????????????
+}
+
+# probs <- ?????????????
+# colnames(probs) = paste("Y =", 0:4)
+# rownames(probs) = paste("X =", 0:4)
+# probs
+ 
+```
+
+----
+
+Partiendo de la función de probabilidad conjunta del ejemplo anterior,
+($n=4$ $p=0.5$), calcula las funciones de probabilidad marginales para
+X (nº de caras) e Y (nº de caras iniciales).
+
+```{r}
+# ???
+```
+
+## Distribuciones condicionales de variables discretas
+
+----
+
+En una urna hay dos monedas trucadas con probabilidad de cara $p_0=0.4$ y $p_1=0.6$.
+Se elige una al azar y se tira 100 veces. Sea X:''nº de caras obtenidas'' e 
+Y: ''moneda elegida''. Obtener la función de probabilidad de X.
+
+```{r}
+p_bimodal <- function(x) {
+  p_0 <- 0.4
+  p_1 <- 0.6
+  x # Replace ?????????????
+}
+plot(0:100, p_bimodal(0:100), type = 'h', xlab="x", ylab="p(x)")
+```
+
+----
+
+Si se han obtenido X=48 caras, ¿cuál es la probabilidad de que la moneda usada
+sea la correspondiente a $p_0$?
+
+```{r}
+# ???
+```
+
+
+## Estadísticos de variables aleatorias conjuntas
+
+Sea X:''Cantidad mensual de lotes comprados por una empresa a su proveedor'' e 
+Y: ''Precio por lote ofertado por el proveedor (en miles de euros)''. 
+La distribución conjunta de ambas variables se recoge en la siguiente tabla:
+
+```{r}
+probs = matrix(
+  c(0.00, 0.00, 0.03, 0.18,
+    0.00, 0.04, 0.24, 0.02,
+    0.02, 0.23, 0.04, 0.00,
+    0.16, 0.04, 0.00, 0.00),
+  byrow = TRUE,
+  ncol = 4
+)
+rownames(probs) <- paste0("y=", seq(1, 2.5, by=0.5))
+colnames(probs) <- paste0("x=", 1:4)
+```
+
+¿Cuál es el coste esperado para la empresa en el siguiente mes de actividad?
+
+```{r}
+# E[XY]
+# 1) Lista todos los posibles resultados X * y
+x = 1:4
+y = c(1, 1.5, 2, 2.5)
+
+#outer(x,y) != outer(y,x) EL ORDEN IMPORTA
+#outer(y,x)  # = outer(y , x, function(x, y) x*y) 
+#Genera todas las posibles combinaciones de x e y) 
+
+resultado_outer = outer(y, x)
+colnames(resultado_outer)= paste ("x=", x)
+rownames(resultado_outer)= paste ("y=", y)
+coste_esperado = sum(resultado_outer* probs)
+coste_esperado
+
+#Genera una visualización de la matriz de probabilidades
+lattice::levelplot(probs)
+
+```
+
+---- 
+
+Calcula la correlación entre X e Y en el problema de la empresa y el proveedor.
+
+$$\rho = \frac$$
+
+```{r}
+#Queremos calcular la correlación.
+#E[XY] = coste_esperado
+
+probs
+
+#Sumar por columnas
+p_xs = colSums(probs)
+#mu_x = E[X] = sum(x * p(X = x))
+mu_x = sum(1:4 * p_xs)
+#mu_y = E[Y] = sum(y * p(Y = y))
+p_ys = rowSums(probs)
+mu_y = sum(y * p_ys)
+
+resultado = outer(y, x, function(y, x) (x - mu_x) * (y - mu_y))
+colnames(resultado)= paste ("x=", x)
+rownames(resultado)= paste ("y=", y)
+
+sum(resultado * probs)
+
+#Deberes:
+#Calculamos las esperanzas por separado de las variables aleatorias Ex[mux] // mu = valores de x * probabilidades
+E_x2 = sum((x^2) * p_xs)
+E_y2 = sum((y^2) * p_ys)
+E_xy = coste_esperado
+
+#Variaciones
+var_x = E_x2 - (mu_x)^2
+var_y = E_y2 - (mu_y)^2
+
+#Desviaciones tipica
+sd_x = sqrt(var_x)
+sd_y = sqrt(var_y)
+
+#Covarianza = E[XY] - mu_x*mu_y
+covarianza = E_xy - mu_x*mu_y # cov = (E_x - mu_x) * (E_y - mu_y)
+
+correlacion = covarianza/(sd_x*sd_y)
+correlacion
+
+```
