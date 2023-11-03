@@ -21,7 +21,18 @@ se diseñan para que la desviación estándar poblacional sea de 15 puntos.
 (Paso 1) Calcula la media muestral para el problema de los CIs.
 
 ```{r paso_1}
-# ??
+library(readr)
+iq <- read_csv("data_1/iq.csv")
+View(iq)
+
+iq$iq
+media_muestral = mean(iq$iq)
+
+z1 = qnorm(0.01)
+z2 = qnorm(0.99)
+# P(z1<Z<z2) = 0.98
+# Z = (X - mu) / sqrt(sigma^2 / n)
+# Z = (X - mu) / (15 / sqrt(100))
 ```
 
 (Paso 2) ¿Cuál es la distribución de $\bar{X}$? 
@@ -35,7 +46,7 @@ se diseñan para que la desviación estándar poblacional sea de 15 puntos.
 (Paso 3b) Halla $z_{\alpha/2}$ para un nivel de significación del 98\%.
 
 ```{r paso_3b}
-# ??
+
 ```
 
 (Paso 4a) Despeja $\mu$ usando las inecuaciones del *paso 3* y empleando que
