@@ -115,19 +115,48 @@ En una urna hay 3 bolas rojas numeradas del 1 al 3 y 3 bolas negras numeradas
 del 1 al 3. Sacamos dos bolas, ¿Probabilidad de sacar dos treses o una negra y una roja?
 
 ```{r}
+# Observaciones:
+# - No imorta orden
+# - No hay elementos repetidos 
 
+# SE TRATA DE UNA COMBINACIÓN 
+# Aplicando el método constructivo planteamos lo siguiente:
+
+# Casos Totales
+casos_totales = choose(6,2)
+
+# Casos Favorables
+#P(2 treses O N Y R) = P(2 treses) + P(N Y R) - P(2 treses && N Y R) == P(N Y R)
+#                      P(2 treses) = P(2 treses && N Y R) (se anulan)
+#                      P(N Y R) = N? R? -> 3 POSIBLES POR CADA COLOR (3*3 = 9 casos)
+prob_B = 9 
+
+print(prob_B/casos_totales)
 ```
 
 
 Problema
 -----
 
-
 Se reparten 5 cartas de una baraja española (40 cartas con 4 palos distintos).
 ¿Cuál es la probabilidad de obtener tres espadas y dos copas?
 
 ```{r}
+# Observaciones: 
+# - NO importa orden 
+# - No hay elementos repetidos (cada carta tiene un nº que la identifica)
 
+# SE TRATA DE UNA COMBINACIÓN
+# Aplicando el método constructivo: 
+
+# Casos totales
+c_totales = choose(40,5)
+
+# Casos Favorables
+espadas = choose(10,3)
+copas = choose(10, 2)
+
+print((espadas* copas) / c_totales)
 ```
 
 ## Probabilidades condicionadas y simulaciones
@@ -143,26 +172,88 @@ si cara, cogemos de la primera urna.
 
 $$P(C|N) = \frac{P(C,N)}{P(N)}$$
 ```{r}
+# VERSIÓN 1
+
 # dos condiciones de éxito: una asociada al numerador  y otra
 # al denominador
 
+# P(Cara | Negra) = P(Cara Y Negra) / P(Negra)
 urna_1 = c("B", "B", "N")
 urna_2 = c("B", "N", "N", "N")
 
-N = 100
+N = 5000
 sims = replicate(N, {
-moneda = sample(c("C", "X"), 1)
-if(moneda == "C"){
-  bola = sample(urna_1, 1)
+  moneda = sample(c("C", "X"), 1)
+  if(moneda == "C"){
+    bola = sample(urna_1, 1)
   }else{
-  bola = sample(urna_2, 1)
+    bola = sample(urna_2, 1)
   }
+  # Concatenamos resultados en una matriz, donde la primera fila es numerador
+  # y segunda fila es denominador
+  
   c((bola == "N") && (moneda == "C"), bola == "N")
 })
 
-print(sum(sims[1, ]) / sum(sims[2, 1]))
+print(sum(sims[1, ]) / sum(sims[2, ]))
 
+#CONDICIÓN NUMERADOR
 
+# (bola == "N") && (moneda == "C")
+
+#---------------------------------------
+# CÁLCULO DE P(Negra) - (DENOMINADOR)
+
+# N = 5000
+# sims = replicate(N, {
+#   moneda = sample(c("C", "X"), 1)
+#   if(moneda == "C"){
+#     bola = sample(urna_1, 1)
+#   }else{
+#     bola = sample(urna_2, 1)
+#   }
+#   bola == "N"
+#----------------------------------------
+
+#--------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------
+
+# VERSIÓN 2
+
+# Dos condiciones de éxito: una asociada al numerador y otra al denominador
+# 1) Simular juegos 
+sim_game = function(){
+urna_C = c("B","B","N")
+urna_X = c("B", rep("N", 3))
+
+monedaa = sample(c("C", "X"), 1)
+  if(moneda == "C"){
+    bolaa = sample(urna_C, 1)
+  }else{
+    bolaa = sample(urna_X, 1)
+  }
+c(monedaa,bolaa)
+}
+game = sim_game()
+
+# 2) He de tener dos condiciones de éxito 
+# replicate
+N = 5000
+simulations_game = replicate(N, {
+  game = sim_game()
+  #Condición éxito numerador: 
+  condicion1 = (game[1] == "C") & (game[2] == "N")
+  ##condicion1 = all(game == c("C", "N"))
+  #Condición exito denominador: 
+  condicion2 = game[2] == "N"
+  c(condicion1, condicion2)
+})
+
+# Laplace
+print(
+  sum(simulations_game[1,])/sum(simulations_game[2,])
+  )
+  
 
 
 ```

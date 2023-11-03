@@ -234,19 +234,29 @@ f <- function(x, y) {
   }
 }
 f <- Vectorize(f)
-# ??
+integrate2_dydx(f, from_x = 0, to_x = Inf, from_y = function(x) 3+x, to_y = function(x) Inf)$value
 ```
 
 Calcula la probabilidad de A y B duren ambos más de 2 unidades de tiempo.
 
 ```{r}
-# ??
+integrate2_dydx(f, from_x = 2, to_x = Inf, from_y = function(x) 2, to_y = function(x)Inf)$value
 ```
 
 Calcula las funciones de densidad marginales.
 
 ```{r}
-# ??
+#Funcion marginal para X
+f_x = function(x){
+  integrate(f, x, Inf, x=x)$value
+}
+
+f_x(3)
+f_x = Vectorize(f_x)
+xs = seq(0, 10, by = 0.01)
+plot(xs, f_x(xs), type = "l")
+
+
 ```
 
 Calcula la función de densidad condicional para X si sabemos que B ha durado
@@ -260,14 +270,28 @@ Calcula la función de densidad condicional para Y si sabemos que A ha durado
 5 unidades de tiempo. ¿Cuál es la probabilidad de que B dure entre entre 4
 y 7 unidades de tiempo si A ha durado 5 unidades de tiempo?
 
+$$P(4<Y<7|X= 5) = \int_4$$
+
 ```{r}
-# ??
+f_Y_given_x5 = function(y){
+  f(5, y) / f_x(5)
+}
+ys = seq(0, 10, by = 0.1)
+plot(ys, f_Y_given_x5(ys), type = "l")
+
+
+integrate(f_Y_given_x5, 4, 7)$value
 ```
 
 ¿Cuál es el valor esperado para Y si X=5?
 
+$$E[Y|X = 5]= \int y f(y|x=5) dy$$
+
 ```{r}
-# ??
+integrate(
+  function(y)y*f_Y_given_x5(y),
+  5, Inf
+)$value
 ```
 
 ----
@@ -277,6 +301,6 @@ aleatoriamente en el punto $(X, Y)$. Supongamos que $(X, Y)$ se distribuye
 uniformemente en la diana. ¿Cuál es la distancia esperada al origen?
 
 ```{r}
-# ??
+
 ```
 

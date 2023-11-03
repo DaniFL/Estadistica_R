@@ -1,9 +1,9 @@
 {
     "id": "0B67C9A3",
-    "path": "~/Desktop/ProbabilidadR/1-probability_statements.Rmd",
+    "path": "~/Library/CloudStorage/OneDrive-FundaciónUniversitariaSanPabloCEU/Universidad/2º/1ºCuatri/ESTADÍSTICA/2023-2024/ProbabilidadR/1-probability_statements.Rmd",
     "project_path": "1-probability_statements.Rmd",
     "type": "r_markdown",
-    "hash": "105697971",
+    "hash": "2252762217",
     "contents": "",
     "dirty": false,
     "created": 1694784569286.0,
@@ -12,16 +12,16 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "160,2",
-        "scrollLine": "144",
-        "last_setup_crc32": "2ea7e93d56079dde"
+        "cursorPosition": "160,0",
+        "scrollLine": "0",
+        "last_setup_crc32": ""
     },
     "folds": "",
-    "lastKnownWriteTime": 1695659605,
+    "lastKnownWriteTime": 1695811753,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1695659605681,
+    "last_content_update": 1695811753,
     "read_only": false,
     "read_only_alternatives": []
 }
