@@ -33,6 +33,11 @@ z2 = qnorm(0.99)
 # P(z1<Z<z2) = 0.98
 # Z = (X - mu) / sqrt(sigma^2 / n)
 # Z = (X - mu) / (15 / sqrt(100))
+# P(z1<Z<z2) = P(z1<(X - mu) / (15 / sqrt(100))<z2) = 0.98
+
+99+z1*sqrt(15^2/100)
+99+z2*sqrt(15^2/100)
+
 ```
 
 (Paso 2) ¿Cuál es la distribución de $\bar{X}$? 
