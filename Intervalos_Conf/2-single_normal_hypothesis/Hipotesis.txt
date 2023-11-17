@@ -23,3 +23,6 @@ E[X] = mu = 2
 
 *Toda hipótesis planteadas deben ser referentes a parámetros poblacionales
 
+
+Ha != x (dos colas)
+Ha >/< x (una cola)

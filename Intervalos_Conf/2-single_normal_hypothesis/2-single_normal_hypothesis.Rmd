@@ -125,7 +125,49 @@ Un producto homeopático afirma que "gracias a su uso, perderás **al menos** 2 
 ¿Es creíble esta afirmación?
 
 ```{r}
-# ??
+# 1) Formulamos hipotesis
+# H0: mu >= 2 "perderas 2 kg"
+# H1: mu < 2 (lo que queremos demostrar)
+
+# 2) Elegimos estadistico de contraste (media muestral (x gorrito)).
+# chequear normalidad y discutir independencia. || para averiguar algo acerca de la media poblacional usamos la meda muestral.
+
+# X(gorrito)~N(2, sigma^2/n) --> Si sabemos sigma (desviación tipica poblacional).
+# X(gorrito) - mu / sigma /sqrt(n) ~ N(0,1) --> Si no sabemos sigma (desviación tipica poblacional) => t de student.
+# X(gorrito) - mu / sigma /sqrt(n) ~ Tn-1
+
+# Para que esto se cierto: 
+# - Normalidad 
+# - Independencia datos 
+
+#3) Calcular p-valor: 
+
+#  Bajo H0: (mu >=2)
+# X(gorrito) - 2 / S /sqrt(n) ~ Tn-1.   || desviación tipica muestral (S gorrito)
+hist(homeo)
+# Cola Izquierda apoya hipótesis alternativa (H1: mu < 2)
+
+library(readr)
+homeo_weight_loss <- read_csv("Intervalos_Conf/2-single_normal_hypothesis/data_2/homeo_weight_loss.csv")
+homeo = homeo_weight_loss$weight_loss_Kg
+
+n = length(homeo)
+media = mean(homeo)
+t_stat = (media -2) / (sd(homeo) / sqrt(n)) # desviación tipica muestral (S gorrito) = sd(datos) - sd(homeo)
+
+p_valor = pt(t_stat, df = n-1, lower.tail = TRUE)
+
+# 4) Conclusión
+# Como el P-valor es pequeño es poco probable que pase la hipótesis nula.Es decir tengo evidencias para rechazar la hipótesis nula. 
+# Es falsa
+
+# Acepto hipótesis alternativa, es decir la pérdida de peso es menor a 2 kg
+
+t.test(homeo, mu = 2, alternative = "less") # Por defecto parámetro alternative = "two.sided" (dos colas) 
+# Esta funcion calcula valor del estadistico
+# Intervalo confianza de una cola (valores Inf o -Inf)
+# Resultado intervalo conf = (-Inf 0.6632413) pérdida de peso max = 0.6632413 kg // nos sirve para apoyar conclusiones
+# Con una conf del 95% la perdida de peso es menor a 0.66 kg
 ```
 
 A este tipo de problemas se les conoce como **hipótesis de una sola cola**
