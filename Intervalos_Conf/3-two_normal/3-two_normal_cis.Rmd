@@ -19,7 +19,58 @@ Apoya tus resultados con un gráfico y calcula el tamaño del efecto. Emplea
 los datos en "howell1.csv".
 
 ```{r}
-# ??
+library(readr)
+howell1 = read_delim("Intervalos_Conf/3-two_normal/data_3/howell1.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+# Método 1
+data = howell1[howell1$age >= 18, ]
+data$male = factor(data$male)
+View(data)
+
+# Método 2 (dplyr)
+library(tydyverse)
+data2 = filter(howell1, age >= 18) 
+data2 = mutate(data2, male = factor(male)) 
+View(data2)
+
+# 1) Formular hipótesis
+# X: altura de los !Kung adultos
+# H0: mu_hombres = mu_mujeres
+# H1: mu_hombres != mu_mujeres
+
+library(ggplot2)
+ggplot(data, aes(x = height, y = weight, col = male)) + 
+  #geom_line() +
+  geom_point() +
+  geom_smooth() 
+
+
+ggplot(data, aes(x = height, fill = male, col = male)) + 
+  #geom_histogram()
+  geom_density(alpha = 0.5)
+  
+# 2) Comprobar asunciones
+# 2.1) Normalidad -> histograma
+hist(data$height, col = "lightblue")
+# 2.2) Independencia: a) Muestra aleatoria b) Poblacion muy grande comparado con la muestra
+# Asumo que el tamaño de la muestra es menor al 10% del tamaño de la poblacion
+
+# 3) Elegir estadístico de contraste 
+# media muestral hombres
+# media muestral mujeres 
+# T = media muestral hombres - media muestral mujeres (t-student)
+# T >> 0 --> hombres > mujeres
+# T << 0 --> hombres < mujeres
+# T ~ 0 --> hombres = mujeres
+
+# Ha = mu_hombres - mu_mujeres != 0
+hombres = data[data$male == 1, ]
+mujeres = data[data$male == 0, ]
+
+t.test(hombres$height, mujeres$height, alternative = "two.sided", conf.level = 0.99, mu = 0)
+
+
 ```
 
 

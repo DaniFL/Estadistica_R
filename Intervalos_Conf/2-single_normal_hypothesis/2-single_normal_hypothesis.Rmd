@@ -332,5 +332,30 @@ medio Kg con un nivel de significación del 1\% y una potencia del 90\%? Usa
 *power.t.test*.
 
 ```{r}
-# ??
+# 1) Formular hipótesis
+# X: peso de las mujeres de cierto pais
+
+# Ho: mu (media poblacional) <= 63.5
+# Ha: mu > 63.5
+
+# Cargamos datos:
+library(readr)
+pharma_weight_loss <- read_csv("Intervalos_Conf/2-single_normal_hypothesis/data_2/pharma_weight_loss.csv")
+pharma = pharma_weight_loss[pharma_weight_loss$sex == "female", ]
+View(pharma)
+# 2) Estadistico de contraste: usaremos t-student ya que no conocemos la varianza poblacional
+# asumimos normalidad e independencia de las muestras
+hist(pharma$weight_loss_Kg)
+# 3) P-valor y el tamaño del efecto
+
+power.t.test(delta = 0.5, # diferencia entre la media poblacional y la media muestral ("poder detectar un incremento de medio Kg)
+             sd = 4.1, sig.level = 0.01, power = 0.9, # probabilidad de elegir Ha si esta es cierta 
+             type = "one.sample", # una población
+             alternative = "one.sided") 
+
+# Estudio con 877.9675 muestras (mujeres)
+
+# ¿Qué efecto puedo detectar con 878 - 50 mujeres?
+power.t.test(n = 878 - 50, sd = 4.1, sig.level = 0.01, power = 0.9, type = "one.sample", alternative = "one.sided")
+
 ```
