@@ -183,29 +183,7 @@ Te facilitan los datos de "pharma\_weight\_loss.csv". ¿Hay suficiente evidencia
 de que el fármaco te hace perder peso? (Usa $\alpha=0.05$.)
 
 ```{r}
-library(readr)
-pharma_weight_loss <- read_csv("Intervalos_Conf/2-single_normal_hypothesis/data_2/pharma_weight_loss.csv")
-pharma = pharma_weight_loss$weight_loss_Kg
-
-# 1) Formulamos hipotesis
-# X: pérdida peso tras usar producto
-# H0: mu <= 0 "perderas peso"
-# Ha: mu > 0 "no perderas peso"
-
-# 2) Elegimos estadistico de contraste (media muestral (x gorrito)). - Como no conocemos sd poblacional usamos t de student.(Para que esto sea cierto se debe cumplir: normalidad e independencia).
-# Comprobamos normalidad y discutir independencia.
-hist(pharma)
-
-# 3) P-valor y el tamaño del efecto 
-# Ha: media real > 0
-t_test = t.test(pharma, mu = 0, alternative = "greater") # Por defecto parámetro alternative = "two.sided" (dos colas)
-effectsize(t_test)
-# La relevancia practica es baa dado que el tamaño del efecto es muy pequeño. 0.11(cohen_d)
-
-# 4) Conclusión
-# existen muchas evidencias de que el producto hace perder peso (P-valor: 0.0003103)
-# Con una perdida de peso de 0.5 kg o más, con un nivel de confianza de 95%. (1-alpha)
-
+# ??
 ```
 ¿Tú crees que alguien comprará el producto?
 **No hay que confundir la significancia estadística con la relevancia práctica**.
@@ -216,9 +194,7 @@ Calcula el tamaño del efecto para el problema del fármaco. ¿Cómo lo interpre
 Usa la siguiente [tabla]{https://imaging.mrc-cbu.cam.ac.uk/statswiki/FAQ/effectSize}.
 
 ```{r}
-#cohen_d = mean(pharma) / sd(pharma) 
-library("easystats")
-effectsize(t_test)
+# ??
 ```
 
 Siempre que hagas un test de medias, 
@@ -228,7 +204,7 @@ Siempre que hagas un test de medias,
 Calcula el **IC unilateral** asociado al test.
 
 ```{r}
-
+# ??
 ```
 
 ### Test para la varianza
@@ -242,35 +218,7 @@ es distinta de 15 y de que, por tanto, debe revisarse la traducción? Usa un niv
 de significación del 5\%.
 
 ```{r}
-# 1) Formulamos hipotesis
-# X: CIs en español 
-# Ho: sigma = 15
-# Ha: sigma != 15
-# 2) Estadistico de contraste: usaremos varianza muestral (s gorrito) - chiCuadrado
-
-library(readr)
-iq_spanish <- read_csv("Intervalos_Conf/2-single_normal_hypothesis/data_2/iq_spanish.csv")
-iq = iq_spanish$iq
-hist(iq)
-
-# 3) P-valor y el tamaño del efecto
-# Bajo la Ho: sigma^2 = 15^2
-
-n = length(iq)
-s_gorrito = var(iq)
-r = (n-1)*s_gorrito/15^2
-
-p_valor = 2 *(1 - pchisq(r, df = n-1)) # pchisq es la funcion de distribucion de la chi cuadrado
-
-# 4) Conclusión (alpha = 0.05)
-# Aceptamos Ha si p-valor < alpha
-
-# 4) Conclusion (alpha = 0.01)
-# Rechazo Ha y acepto Ho si p-valor > alpha
-
-# Recomendaria repetir el estudio con mas muestras
-
-
+# ??
 ```
 
 Lo razonable sería repetir el experimento con más muestras. Ahora bien,
@@ -283,32 +231,15 @@ rechazar $H_0$ si $\sigma^2=388.6902$ para un número de muestras $n$. Completa
 el siguiente código:
 
 ```{r}
-# Quiero clcular la prob de elegir Ha, si esta es cierta
-# Ha: sigma^2 = 15^2
-# Similar ICs donde se verifique Ha
-
-rnorm(10, sd = sqrt(388.690)) # Genera 10 muestras de una normal con sd = sqrt(388.6902)
-n = length(iq)
 power_var_test <- function(n, H0_sigma2 = 15 ^ 2, true_sigma2 = 388.6902,
                            significance = 0.05, N = 5000) {
   sims <- replicate(N, {
     data <- rnorm(n, sd = sqrt(true_sigma2))
-    var_stat <- ((n-1) * s_gorrito) / H0_sigma2
-    p_value <- 2 *(1 - pchisq(var_stat, df = n-1))
+    var_stat <- 0 # ????????????????????????????????
+    p_value <- 0  # ????????????????????????????????
     p_value < significance
   })
-  mean(sims)
 }
-# True -> p-valor < significancia == Acptamos Ha cuando esta es cierta
-
-power_var_test(30)
-
-ns = c(30,50,70,100)
-power_var_test = Vectorize(power_var_test)
-potencias = power_var_test(ns)
-plot(ns, potencias)
-
-
 ```
 
 ### Potencia de un test: tamaño de la muestra
@@ -316,11 +247,7 @@ Halla ahora el número de muestras necesarias para obtener una potencia de test
 del 90\%.
 
 ```{r}
-ns = 65:100
-potencias = power_var_test(ns)
-plot(ns, potencias)
-abline(h = 0.9, col = "red")
-# Uso en torno a 70 muestras para el nuevo estudio
+# ??
 ```
 
 ### Potencia del T-test: número de muestras
