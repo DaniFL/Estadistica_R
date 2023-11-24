@@ -68,9 +68,26 @@ hist(data$height, col = "lightblue")
 hombres = data[data$male == 1, ]
 mujeres = data[data$male == 0, ]
 
-t.test(hombres$height, mujeres$height, alternative = "two.sided", conf.level = 0.99, mu = 0)
+# Discutir disribucion de T-student con dos poblaciones (hombres y mujeres)
 
+# 1) Normalidad poblaciones (por separado) -> razonable en base al gráfico
+# 2) Independencia -> razonable en base a la forma de obtención de los datos
+# 2.1) Independencia poblaciones
+# 2.2) Independencia de las muestras dentro de cada poblacion
 
+# Debido a que padres altos tienden a tener hijos altos y madres altas tienden a tener hijas altas
+# la independencia de las muestras dentro de cada poblacion no se cumple (2.1/2.2)
+# Si la población es muy grande y la muestra es pequeña en comparación, la asunción de independencia si es razonable ppor que será dificil que miembros de una misma familia estén en la muestra.
+t_test = t.test(hombres$height, mujeres$height, alternative = "two.sided", conf.level = 0.99, mu = 0)
+
+library("effectsize")
+cohens_d = effectsize(t_test)
+print(cohens_d)
+
+# Conclusiones
+# La estatura de los hombres es mayor que la de las mujeres
+# Los hombres miden 10.85 cm más de media que las mujeres
+# El tamaño del efecto es grande (1.69 - 2.29)
 ```
 
 
@@ -81,7 +98,11 @@ la desviación típica poblacional para hombres y mujeres es la misma
 ($\sigma_h = \sigma_m$).
 
 ```{r}
-# ??
+t_test = t.test(hombres$height, mujeres$height, alternative = "two.sided", conf.level = 0.99, mu = 0, var.equal = TRUE)
+
+library("effectsize")
+cohens_d = effectsize(t_test)
+print(cohens_d)
 ```
 
 
@@ -95,9 +116,55 @@ operación es aumentar la GBEF. ¿Hay evidencia para concluir que la operación
 aumenta el GBEF? Datos en "gbef\_long.txt" (o "gbef.txt", para un reto).
 
 ```{r}
-# ??
-```
+library(readr)
+gbef_long <- read_table("Intervalos_Conf/3-two_normal/data_3/gbef_long.csv")
+View(gbef_long)
 
+gbref_long$ID = factor(gbref_longs$ID)
+gbref_long$class = factor(gbref_longs$class)
+
+library(dplyr)
+gbref_long =mutate(gbref_long, ID = factor(ID))
+
+# 2) 
+# X: valor de GBEF
+# H0: mu_post <= mu_pre -> mu_post = mu_pre
+# Ha: mu_post > mu_pre
+```
+$$Ha: \mu_{post} > \mu_{pre} -> \mu_{post} - \mu_{pre} > 0$$
+```{r}
+# 3) Elección estadístico de contraste
+# T = media muestral post - media muestral pre
+```
+$$T = \bar{X}_{post} - \bar{X}_{pre}$$
+```{r}
+# Independencia: entre post y pre hay dependencia por que se tratan de datos apareados
+# Para cada persona estudiamos el valor de GBEF antes y después de la operación
+
+# Normalidad:
+pre = gbef_long[gbef_long$class == "Preop", ]
+post = gbef_long[gbef_long$class == "Postop", ]
+
+D = post$gbef - pre$gbef
+hist(D, col = "lightblue")
+
+# 3) 
+# Ha: mu_post > mu_pre -> mu_post - mu_pre > 0
+t.test(D, alternative = "greater", mu = 0)
+# Ha: mupost > mu pre
+t_test = t.test(post$gbef, pre$gbef, alternative = "greater", mu = 0, paired = TRUE)
+
+cohens_d = effectsize(t_test)
+
+# 4) interpretar soluciones
+# No hay evidencia concluyente de que la operación funciones p-value = 0.04086, sin embargo parace prometedora ya que la ganancia de gbef media es de 18.075. Además este efecto puede tener relevancia pratica ya que corresponde con un tamaño de efecto medio (0.5), aunque 95% IC (o.03-Inf)
+
+# Recomendamos hacer un estudio con mas muestras 
+# haz un power t.test paara averiguar e numero muestras
+# que necesitamos para detectar un efecto de 18.075 con un poder del 80%
+# y un nivel de significación del 5%
+power.t.test(delta = 18.075, sd = sd(D), sig.level = 0.01, power = 0.9, type = "paired", alternative = "one.sided")
+```
 # Comparaciones de varianzas
 
 ### Comparaciones de varianzas
