@@ -176,7 +176,41 @@ $24$ y $18$ (en Watts$^2$). Usando un nivel de confianza del 98\%, ¿qué métod
 es preferible? Usa la función *var.test*.
 
 ```{r}
-# ??
+
+# 1)
+# X: varianza muestral de A y B
+# H0:  sigma_A^2 / sigma_B^2 = 1
+# Ha:  sigma_A^2 / sigma_B^2 > 1
+
+# P-valor
+p_value = 1 - pf(1.33, 15, 9)
+
+# Intervalo confianza
+1/qf(1-0.02/2, 15, 9) * 24/18
+1/qf(0.02/2, 15, 9) * 24/18
+
+# Conclusiones
+# No hay evidencia concluyente de que las varianzas sean distintas
+# No podemos rechazar la hipotesis nula
+
+# Estos no sirven
+datos_a = rnorm(16, 0, sqrt(24))
+datos_b = rnorm(10, 0, sqrt(18))
+
+# Estandarización datos ==>  media = 0, desviación tipica de 1
+datos_a = rnorm(16)
+datos_a = (datos_a - mean(datos_a)) / sd(datos_a)
+datos_a = datos_a * sqrt(24) + 3
+
+datos_b = rnorm(10)
+datos_b = (datos_b - mean(datos_b)) / sd(datos_b)
+datos_b = datos_b * sqrt(18) + 3
+
+var.test(datos_a, datos_b, ratio = 1, alternative = "two.sided", conf.level = 0.98)
+
+# Ha: var_b > 2 * var_a --> var_b / var_a > 2
+# Ha:var_a / var_b < 0.5
+var.test(datos_b, datos_a, ratio = 2, alternative = "greater", conf.level = 0.98)
 ```
 
 --- 

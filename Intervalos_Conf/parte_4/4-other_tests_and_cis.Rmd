@@ -1,0 +1,73 @@
+---
+title: "Intervalos de confianza y test de hipótesis para poblaciones no-normales"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Datos no-normales
+### Fútbol y Poisson
+Bajo ciertas condiciones, el número de goles marcados en un partido de fútbol 
+se puede aproximar por una distribución de Poisson. El fichero "spain_league.csv"
+contiene datos sobre la liga de fútbol española. Para hacer tus apuestas deportivas,
+es importante saber el número de goles promedio por equipo en cada partido. Usando
+los resultados de la liga 21-22, construye un intervalo de confianza
+del 98\% para el promedio de goles del equipo local en un partido.
+
+```{r}
+# X: goles del equipo local en un partido
+# X ~ Poisson(lambda)
+# Suma de variables independientes se asemeja a una normal
+# lambda_gorrito = media (X_gorrito) = Sumatorio(Xi)/n --> Teorema del límite central
+
+# Si las muestras son independientes: 
+# Lambda_gorrito = media muestral ~ N(mu, sigma^2/n) = N(E[X], Var[X]/n) = N(lambda, lambda/n)
+
+# media muestral - Z alpha/2 * sqrt(lambda/n) < lambda < media muestral + Z alpha/2 * sqrt(lambda/n)
+# media muestral - Z alpha/2 * sqrt(mediamuestral/n) < lambda < media muestral + Z alpha/2 * sqrt(mediamuestral/n)
+
+# 1) Cargar los datos
+library(readr)
+spain_league <- read_csv("Intervalos_Conf/parte_4/data_4/spain_league.csv")
+
+sp_league = spain_league[spain_league$Season == 2021, ]
+sp_league2 = sp_league[sp_league$hgoal == 1, ]
+
+goles = sp_league$hgoal
+hist(goles, col = "lightblue")
+lambda_estimation = mean(goles)
+error = qnorm(0.01) * sqrt(lambda_estimation/length(goles))
+ic = c(lambda_estimation + error, lambda_estimation - error)
+```
+
+
+# Datos tabulares
+## Racismo en la selección de jurados
+Durante los 60s-70s, se dieron casos de racismo en la elección de jurados
+populares. Supuestamente, la elección es al azar entre un listado de todos los
+ciudadanos. Sin embargo, se daban situaciones como que en una preselección de 80
+posibles jurados solo 4 fuesen afroamericanos (de una población con un 50\% de
+afroamericanos). Datos en "juries.csv". Las autoridades se defendían diciendo
+que era pura casualidad. ¿Es esto creíble? Apoya tus conclusiones con gráficos.
+
+```{r}
+# ??
+```
+
+
+### A/B testing
+Una página web de venta de productos ha estudiado el número de conversiones de
+su página web actual (conversión $=$ el usuario hace click en ``comprar ahora'').
+Para aumentar el número de conversiones, rediseña el aspecto de su página web en
+base a *heatmaps*.  La nueva página se prueba con un nuevo conjunto de usuarios,
+midiendo el número de conversiones. Datos en "ab_testing.csv". ¿Se puede 
+concluir que la nueva página incrementa el número de conversiones? 
+Apoya tus conclusiones con un gráfico.
+
+```{r}
+# ??
+```
+
