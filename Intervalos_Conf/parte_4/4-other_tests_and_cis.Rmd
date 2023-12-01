@@ -41,10 +41,19 @@ hist(goles, col = "lightblue")
 lambda_estimation = mean(goles)
 error = qnorm(0.01) * sqrt(lambda_estimation/length(goles))
 ic = c(lambda_estimation + error, lambda_estimation - error)
+
+
+barplot(table(goles), col = "lightblue")
+
+library(ggplot2)
+ggplot(sp_league , aes(x = goles)) + 
+  geom_bar(fill = "lightblue", col = "black") 
+
+
 ```
 
 
-# Datos tabulares
+# Datos tabulares --> tratamos de adivinar el parámetro de poblacional (p)
 ## Racismo en la selección de jurados
 Durante los 60s-70s, se dieron casos de racismo en la elección de jurados
 populares. Supuestamente, la elección es al azar entre un listado de todos los
@@ -54,7 +63,40 @@ afroamericanos). Datos en "juries.csv". Las autoridades se defendían diciendo
 que era pura casualidad. ¿Es esto creíble? Apoya tus conclusiones con gráficos.
 
 ```{r}
-# ??
+# 1) Cargamos los datos
+library(readr)
+juries <- read_csv("Intervalos_Conf/parte_4/data_4/juries.csv")
+
+# Número lanzamientos y probabilidad éxito -> parámetros de la binomial
+
+juries$race = as.factor(juries$race)
+
+library(ggplot2)
+ggplot(juries, aes(x = race, fill = race)) + 
+  geom_bar()
+
+# 2) Hipétesis
+# X: número de afroamericanos en el jurado
+# X ~ Binomial(n, p) == Binomial(80, p)
+# H0: p = 0.5
+# Ha: p < 0.5
+
+# 3) Estadístico: media muestral es un estimador de p 
+# Podría usar el teorema del límite central (sin embargo existe funcion que nos permite hacer esta estimación)
+
+afro = sum(juries$race == "afroamerican")
+tabla = table(juries$race)
+n_afro = tabla["afroamerican"]
+# Ha: p < 0.5
+binom.test(n_afro,
+           length(juries$race), 
+           p = 0.5, 
+           alternative = "less")
+
+# 4) Conclusión
+# Hay mucha evidencia d eque hay racismo en la selección de jurados, por que la probabilidad de que haya menos de 40 afroamericanos es muy baja (pvalor: 0)
+# La probabilidad de elegir a un afromericanos es 0.11 con una confianza del 95% 
+
 ```
 
 
