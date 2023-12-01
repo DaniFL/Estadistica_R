@@ -110,6 +110,33 @@ concluir que la nueva página incrementa el número de conversiones?
 Apoya tus conclusiones con un gráfico.
 
 ```{r}
-# ??
+#
+
+library(readr)
+ab_testing <- read_csv("Intervalos_Conf/parte_4/data_4/ab_testing.csv")
+View(ab_testing)
+
+ab_testing$page_design = as.factor(ab_testing$page_design)
+ab_testing$has_clicked = as.factor(ab_testing$has_clicked)
+
+ggplot(ab_testing, aes(x = page_design, fill = has_clicked)) + 
+  geom_bar(position = "fill") # stack, dodge , fill, jiter, identity
+
+# 1) Hipótesis
+# X: n cliks en la página nueva
+# Y: n cliks en la página antigua
+# X ~ Binomial(n, p) == Binomial(nx, px)
+# Y ~ Binomial(n, p) == Binomial(ny, py)
+
+# H0: px > py
+# Ha: px <= py
+
+tabla2 = table(ab_testing$page_design, ab_testing$has_clicked)
+clik  = tabla2[, 2]
+n = rowSums(tabla2)
+prop.test(clik, n, alternative = "greater")
+
+# 4) Conclusión
+# Hay mucha evidencia de que la nueva página web es mejor que la antigua, por que la probabilidad de que haya más clicks en la nueva página es muy baja (pvalor: 0.0001)
 ```
 
